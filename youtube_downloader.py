@@ -19,18 +19,25 @@ import argparse
 from pathlib import Path
 import glob
 
-def convert_vtt_to_text_auto(output_path):
-    """自动检测并转换VTT文件为纯文本格式"""
+def convert_vtt_to_text_auto(output_path, video_title=None):
+    """自动检测并转换刚下载的VTT字幕文件为纯文本格式"""
     try:
-        # 导入VTT转换模块
         from vtt_to_text_converter import convert_vtt_to_text
         
-        # 查找VTT文件
-        vtt_pattern = os.path.join(output_path, '*.vtt')
-        vtt_files = glob.glob(vtt_pattern)
+        # 如果提供了视频标题，只转换对应的VTT文件
+        if video_title:
+            # 查找与视频标题匹配的VTT文件
+            vtt_pattern = os.path.join(output_path, f"{video_title}*.vtt")
+            vtt_files = glob.glob(vtt_pattern)
+        else:
+            # 查找所有VTT文件
+            vtt_files = glob.glob(os.path.join(output_path, "*.vtt"))
         
         if not vtt_files:
-            print("📝 未找到VTT字幕文件")
+            if video_title:
+                print(f"📝 未找到与视频 '{video_title}' 相关的VTT字幕文件")
+            else:
+                print("📝 未找到VTT字幕文件")
             return []
         
         print(f"\n🔄 找到 {len(vtt_files)} 个VTT字幕文件，开始转换为纯文本...")
@@ -191,7 +198,7 @@ def download_video(url, output_path=None, use_cookies=True, browser='chrome',
             # 下载视频
             ydl.download([url])
             print("✓ 下载完成！")
-            return True
+            return title
             
     except Exception as e:
         print(f"❌ 下载失败: {str(e)}")
@@ -399,7 +406,7 @@ def main():
     
     # 下载视频
     use_cookies = not args.no_cookies
-    success = download_video(
+    result = download_video(
         url=video_url,
         output_path=output_path,
         use_cookies=use_cookies,
@@ -411,14 +418,16 @@ def main():
         audio_format=args.audio_format
     )
     
-    if success:
+    if result:
         print(f"\n✅ 下载完成！文件已保存到: {output_path}")
         if args.extract_audio:
             print(f"   音频文件格式: {args.audio_format}")
         
         # 自动转换VTT为纯文本（如果启用）
         if args.convert_vtt_to_text:
-            convert_vtt_to_text_auto(output_path)
+            # 传递视频标题，只转换刚下载的VTT文件
+            video_title = result if isinstance(result, str) else None
+            convert_vtt_to_text_auto(output_path, video_title)
     else:
         print("\n❌ 下载失败，请检查链接是否正确或网络连接")
 

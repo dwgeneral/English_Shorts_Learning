@@ -500,5 +500,9 @@ uv是一个极快的Python包管理器，用Rust编写。相比pip，它具有�
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
-uv run python youtube_downloader.py --browser chrome -q 1080p --convert-vtt-to-text https://www.youtube.com/shorts/xMlsVPH_SWA
 # English_Shorts_Learning
+```bash
+$ uv run python youtube_downloader.py --browser chrome -q 1080p --convert-vtt-to-text -o tech https://www.youtube.com/shorts/xMlsVPH_SWA
+$ uv run python youtube_downloader.py --browser chrome -q 1080p --convert-vtt-to-text -o english https://www.youtube.com/shorts/2mRs_JY0ea4
+```
+
